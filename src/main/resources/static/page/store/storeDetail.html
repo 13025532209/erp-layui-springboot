@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="../../layui/css/layui.css">
+    <script src="../../layui/layui.js"></script>
+    <script src="../../js/request.js"></script>
+</head>
+<style>
+
+</style>
+
+<body>
+<table class="layui-hide" id="demo"></table>
+</body>
+<script>
+    var entity = {};
+    layui.use(['form', 'layer', 'table', 'jquery'], function () {
+        var form = layui.form;
+        $ = layui.$;
+
+        var table = layui.table;
+
+        //展示已知数据
+        table.render({
+            elem: '#demo',
+            url: '/store/getStoreGoodsById?id='+Request['id']
+            , cols: [[ //标题栏
+                {field: 'uuid', title: 'ID', width: 80, sort: true}
+                , {field: 'goodsName', title: '商品名字', width: 120}
+                , {field: 'num', title: '数量', minWidth: 150}
+
+            ]]
+            //,skin: 'line' //表格风格
+            , even: true
+            //,page: true //是否显示分页
+            //,limits: [5, 7, 10]
+            //,limit: 5 //每页默认显示的数量
+        });
+
+        $(function () {
+
+
+
+        })
+
+        function findOne(id) {
+
+            $.ajax({
+                url: "/store/getStoreGoodsById?id=" + id,
+                type: 'get',
+                async: false,
+                success: function (response) {
+                    entity = response;
+                    // table.reload('demo', {});
+                }
+            });
+        }
+
+
+    });
+</script>
+
+</html>

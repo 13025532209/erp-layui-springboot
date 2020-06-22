@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="layui/css/layui.css">
+    <script src="layui/layui.js"></script>
+    <script src="js/angular.min.js"></script>
+</head>
+<style type="text/css">
+</style>
+<script type="text/javascript">
+    function SetIFrameHeight() {
+        var iframeid = document.getElementById("iframe"); //iframe id
+        if (document.getElementById) {
+            iframeid.height = document.documentElement.clientHeight;
+        }
+    }
+</script>
+
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header ">
+        <div class="layui-logo">layui 后台布局</div>
+        <!-- 头部区域（可配合layui已有的水平导航） -->
+        <ul class="layui-nav layui-layout-left">
+            <li class="layui-nav-item">
+                <a href="">控制台</a>
+            </li>
+            <li class="layui-nav-item">
+                <a href="">商品管理</a>
+            </li>
+            <li class="layui-nav-item">
+                <a href="">用户</a>
+            </li>
+            <li class="layui-nav-item">
+                <a href="javascript:;">其它系统</a>
+                <dl class="layui-nav-child">
+                    <dd>
+                        <a href="">邮件管理</a>
+                    </dd>
+                    <dd>
+                        <a href="">消息管理</a>
+                    </dd>
+                    <dd>
+                        <a href="">授权管理</a>
+                    </dd>
+                </dl>
+            </li>
+        </ul>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a href="javascript:;" id="user_pic">
+                    <img src="http://t.cn/RCzsdCq"  class="layui-nav-img">
+                </a>
+                <dl class="layui-nav-child">
+                    <dd>
+                        <a href="">基本资料</a>
+                    </dd>
+                    <dd>
+                        <a href="">安全设置</a>
+                    </dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item">
+                <a href="javascript:;" id="logout">退了</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree" id="mynav">
+                <!-- <li class="layui-nav-item">
+                     <a class="" href="javascript:;"><i class="layui-icon layui-icon-app"></i> 基础数据</a>
+                     <dl class="layui-nav-child">
+                         <dd>
+                             <a href="page/goodsType/goodsTypeList.html" target="iframe">
+                                  商品类型</a>
+                         </dd>
+                         <dd>
+                             <a href="page/goroleList.htmlhtml" target="iframe">商品</a>
+                         </dd>
+                         <dd>
+                             <a href="page/store/storeList.html" target="iframe">仓库</a>
+                         </dd>
+                     </dl>
+                 </li>
+                 <li class="layui-nav-item ">
+                     <a href="javascript:;"><i class="layui-icon layui-icon-component"></i> 人事管理</a>
+                     <dl class="layui-nav-child">
+                         <dd>
+                             <a href="page/dep/depList.html" target="iframe">部门</a>
+                         </dd>
+                         <dd>
+                             <a href="page/emp/empList.html" target="iframe">员工</a>
+                         </dd>
+                     </dl>
+                 </li>
+                 <li class="layui-nav-item">
+                     <a href="javascript:;"><i class="layui-icon layui-icon-cart-simple"></i> 采购管理</a>
+                     <dl class="layui-nav-child">
+                         <dd>
+                             <a href="page/orders/ordersList.html?oper=orders&type=1" target="iframe">采购订单查询</a>
+                         </dd>
+
+                         <dd>
+                             <a href="page/orders/ordersList.html?oper=myorders&type=1" target="iframe">采购订单申请</a>
+                         </dd>
+                         <dd>
+                             <a href="page/orders/ordersList.html?oper=doCheck&type=1" target="iframe">采购订单审核</a>
+                         </dd>
+                         <dd>
+                             <a href="page/orders/ordersList.html?oper=doStart&type=1" target="iframe">采购订单确认</a>
+                         </dd>
+
+                         <dd>
+                             <a href="page/orders/ordersList.html?oper=doInStore&type=1" target="iframe">采购订单入库</a>
+                         </dd>
+
+                         <dd>
+                             <a href="page/orders/ordersList.html?oper=myorders&type=1" target="iframe">我的采购订单</a>
+                         </dd>
+                     </dl>
+                 </li>
+                 <li class="layui-nav-item">
+                     <a href="javascript:;"><i class="layui-icon layui-icon-form"></i> 销售管理</a>
+                     <dl class="layui-nav-child">
+                         <dd>
+                             <a href="page/orders/ordersList.html?oper=orders&type=2" target="iframe">销售订单查询</a>
+                         </dd>
+                         <dd>
+                             <a href="page/orders/ordersList.html?oper=myorders&type=2" target="iframe">销售订单录入</a>
+                         </dd>
+                         <dd>
+                             <a href="page/orders/ordersList.html?oper=doOutStore&type=2" target="iframe">销售订单出库</a>
+                         </dd>
+                     </dl>
+                 </li>
+                 <li class="layui-nav-item layui-nav-itemed">
+                     <a href="javascript:;"><i class="layui-icon layui-icon-set"></i> 权限管理</a>
+                     <dl class="layui-nav-child">
+                         <dd>
+                             <a href="page/role/roleMenuSet.html" target="iframe">权限角色设置</a>
+                         </dd>
+                     </dl>
+                 </li>
+ -->
+
+
+            </ul>
+        </div>
+    </div>
+    <div class="layui-body">
+        <!-- 内容主体区域 -->
+        <iframe id="iframe" width="100%" name="iframe" frameborder="0" src=""></iframe>
+
+    </div>
+
+    <div class="layui-footer">
+        <!-- 底部固定区域 -->
+        © layui.com - 底部固定区域
+    </div>
+</div>
+<script>
+    layui.use(['element', 'jquery'], function () {
+        var element = layui.element;
+        $ = layui.$;
+        var prefix = 'page/';
+
+        $('#logout').click(function () {
+            $.ajax({
+                url: "logout",
+                type: 'get',
+                success: function (response) {
+                    location.href="login.html";
+                }
+            })
+        })
+
+
+        $.ajax({
+            url: "emp/getMenusByEmpuuid",
+            type: 'get',
+            async: false,
+            success: function (response) {
+               if(response==''||response==null){
+                   location.href="login.html";
+                   return;
+               }
+
+                var menusList = response.menus;
+                console.log(menusList);
+                var $nav = $('#mynav');
+                for (var i = 0; i < menusList.length; i++) {
+                    var menus1 = menusList[i];
+                    var html = '<li class="layui-nav-item"><a href="javascript:;"><i class="layui-icon ' + menus1.icon + '"></i>&nbsp;&nbsp;' + menus1.menuname + '</a><dl class="layui-nav-child">';
+
+
+                    for (var j = 0; j < menus1.menus.length; j++) {
+                        var menus2 = menus1.menus[j];
+                        html += ' <dd><a href="' + prefix + menus2.url + '" target="iframe">' + menus2.menuname + '</a></dd>';
+
+                    }
+                    html += '</dl></li>';
+                    $nav.append(html);
+                }
+                element.render();
+            }
+        });
+
+
+        $(document).ready(function () {
+            $.ajax({
+                url: "showName",
+                type: 'get',
+                success:function(response){
+                    $('#user_pic').append(response);
+                }
+            })
+
+            //调用函数
+            var pagestyle = function () {
+                /* var blockHeight = $("#iframe").contents().find(".childrenBody>blockquote").height();*/
+                /* console.log($("#iframe").contents().find(".childrenBody>blockquote").height()+"高度");
+                 console.log($("#iframe").contents().find(".childrenBody>blockquote").offset().top+"top");*/
+                var iframe = $("#iframe");
+
+                var h = $(window).height() - iframe.offset().top - 50;
+                /*console.log(iframe.offset().top)*/
+                iframe.height(h);
+            } //注册加载事件
+            $("#iframe").load(pagestyle); //注册窗体改变大小事件
+            $(window).resize(pagestyle);
+        });
+    });
+</script>
+</body>
+
+</html>

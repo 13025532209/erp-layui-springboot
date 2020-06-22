@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="../../js/angular.min.js"></script>
+    <link rel="stylesheet" href="../../layui/css/layui.css">
+    <script src="../../layui/layui.js"></script>
+</head>
+<style>
+    .searchForm .layui-input {
+        width: 200px;
+        display: inline-block;
+    }
+
+    .searchForm .layui-form-label {
+        /*text-align: left;*/
+        width: 56px;
+    }
+
+    .searchForm button {
+        margin-left: 16px;
+    }
+
+    .searchForm > div {
+        display: inline-block;
+        margin-bottom: 15px;
+    }
+
+    .childrenBody .layui-elem-quote {
+        padding-bottom: 0px;
+    }
+
+    .childrenBody {
+        margin: 10px 10px 0;
+    }
+</style>
+
+<body>
+<div class="childrenBody">
+    <blockquote class="site-text layui-elem-quote">
+        <form action="" class="layui-form searchForm">
+            <div>
+                <label class="layui-form-label">名称</label>
+                <input type="text" name="name" class="layui-input">
+            </div>
+
+
+            <div>
+                <label class="layui-form-label">员工</label>
+                <div class="layui-input-inline">
+                    <select name="empuuid">
+                        <option value="">请选择</option>
+                        </option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div>
+                <button type="button" class="layui-btn" lay-submit="" lay-filter="do_search" id="search_btn">查询</button>
+                <button type="button" class="layui-btn layui-btn-normal" id="add_btn">添加</button>
+            </div>
+
+        </form>
+    </blockquote>
+    <table class="layui-table" id="storeList" lay-filter="storeList"></table>
+</div>
+
+</body>
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-xs" lay-event="select">查看库存</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+<script>
+    var empMap = {};
+
+    layui.use(['form', 'element', 'layer', 'table', 'jquery'], function () {
+        $ = layui.$;
+        var table = layui.table;
+        var form = layui.form;
+
+
+        table.render({
+            elem: '#storeList',
+            url: '/store/findList',
+            cols: [
+                [{
+                    field: 'uuid',
+                    width: 120,
+                    title: '编号'
+                }, {
+                    field: 'name',
+                    width: 120,
+                    title: '名称'
+                },
+                    {
+                        field: 'empuuid',
+                        width: 120,
+                        title: '员工',
+                        templet: function (d) {
+                            return empMap[d.empuuid];
+                        }
+                    },
+                    {
+                        field: 'left',
+                        width: 200,
+                        align: 'center',
+                        title: '操作',
+                        toolbar: '#barDemo'
+                    }
+                ]
+            ],
+            height: "full-170",
+            page: true
+        });
+
+        //
+        table.on('tool(storeList)', function (obj) {
+            var data = obj.data;
+            //console.log(obj)
+            if (obj.event === 'del') {
+                layer.confirm('真的删除行么', function (index) {
+                    if (del(data.uuid)) {
+                        obj.del();
+                        layer.close(index);
+                    }
+                });
+            } else if (obj.event === 'edit') {
+                layer.open({
+                    type: 2,
+                    title: '仓库操作',
+                    content: 'storeOper.html?id=' + data.uuid,
+                    area: ['360px', '85%'],
+                    btn: ['保存'],
+                    btnAlign: 'c',
+                    /*resize: false,*/
+                    yes: function (index, layero) {
+                        var body = layer.getChildFrame('body', index);
+                        /* var iframeWin = window[layero.find('iframe')[0]['name']]; *///得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
+                        var entity = {};
+                        $.each(body.find('.operForm').serializeArray(), function (i, n) {
+                            entity[n.name] = n.value;
+                        });
+                        save(entity);
+                    },
+                });
+            }else if(obj.event==='select'){
+                layer.open({
+                    type: 2,
+                    title: '查看库存',
+                    content: 'storeDetail.html?id=' + data.uuid,
+                    area: ['780px', '85%'],
+                    btn: ['保存'],
+                    btnAlign: 'c',
+                    /*resize: false,*/
+                    yes: function (index, layero) {
+
+                    }
+                });
+            }
+        });
+        //查询
+        form.on('submit(do_search)', function (data) {
+            //获取当前页条数
+            var recodeLimit = $(".layui-laypage-limits").find("option:selected").val();
+            console.log(data.field);
+            //执行重载
+            table.reload('storeList', {
+                url: "/store/findList",
+                curr: 1, //重新从第 1 页开始
+                limit: recodeLimit,
+                //根据条件查询
+                where: data.field
+            })
+            return false;
+        });
+        //添加
+        $('#add_btn').click(function () {
+            layer.open({
+                type: 2,
+                title: '仓库操作',
+                content: 'storeOper.html',
+                area: ['360px', '85%'],
+                btn: ['保存'],
+                btnAlign: 'c',
+                /*resize: false,*/
+                yes: function (index, layero) {
+                    var body = layer.getChildFrame('body', index);
+                    /* var iframeWin = window[layero.find('iframe')[0]['name']]; *///得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
+                    var entity = {};
+                    $.each(body.find('.operForm').serializeArray(), function (i, n) {
+                        entity[n.name] = n.value;
+                    });
+                    delete entity.uuid;
+                    console.log(entity)
+                    save(entity);
+                }
+            });
+        })
+        //删除
+        function del(id) {
+            var flag = false;
+            $.ajax({
+                type: "get",
+                url: "/store/del?id=" + id,
+                async: false,
+                success: function (response) {
+                    if (response.success) {
+                        flag = true;
+                        layer.msg(response.message)
+                    } else {
+                        layer.msg(response.message);
+                    }
+                }
+            });
+            return flag;
+        }
+
+        function save(entity) {
+            var method = 'update';
+            if (entity.uuid == null) {
+                method = 'add';
+            }
+            $.ajax({
+                url: "/store/" + method,
+                data: JSON.stringify(entity),
+                dataType: 'json',
+                type: 'post',
+                contentType: 'application/json;charset=utf-8',
+                success: function (response) {
+                    if (response.success) {
+                        reloadTable();
+                        layer.closeAll();
+                    }
+                }
+            });
+        }
+
+        function selectList($obj) {
+            $.ajax({
+                type: "get",
+                url: "/emp/listAndMap",
+                async: false,
+                success: function (response) {
+                    empMap = response.map;
+                    var $select = $obj;
+                    $.each(response.list, function (i, n) {
+                        var optionhtml = '<option  value="' + n.uuid + '">' + n.name + '</option>';
+                        $select.append(optionhtml);
+                    });
+                    form.render()
+                }
+            });
+        }
+
+        function reloadTable() {
+            //获取当前页
+            var recodePage = $(".layui-laypage-skip .layui-input").val();
+            //获取当前页条数
+            var recodeLimit = $(".layui-laypage-limits").find("option:selected").val();
+            table.reload('storeList', {
+                url: "../../store/findList",
+                page: {
+                    curr: recodePage,
+                    limit: recodeLimit
+                }
+            })
+        }
+
+        $(function () {
+            selectList($('select[name=empuuid]'));
+        })
+    });
+</script>
+
+</html>

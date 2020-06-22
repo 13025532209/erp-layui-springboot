@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="../../layui/css/layui.css">
+    <script src="../../layui/layui.js"></script>
+    <script src="../../js/request.js"></script>
+</head>
+<style>
+    .operForm > div {
+        margin-bottom: 15px;
+    }
+
+    .operForm {
+        padding-top: 20px;
+    }
+
+    body {
+        background-color: #F2F2F2;
+    }
+</style>
+
+<body>
+<form action="" class="layui-form operForm">
+    <input type="text" name="uuid" hidden>
+    <div>
+        <label class="layui-form-label">登录名</label>
+        <div class="layui-input-inline">
+            <input type="text" name="username" class="layui-input">
+        </div>
+    </div>
+
+    <div>
+        <label class="layui-form-label">真实姓名</label>
+        <div class="layui-input-inline">
+            <input type="text" name="name" class="layui-input">
+        </div>
+    </div>
+    <div>
+        <label class="layui-form-label">性别</label>
+        <div class="layui-input-inline">
+            <input type="radio" name="gender" value="0" title="女">
+            <input type="radio" name="gender" value="1" title="男">
+        </div>
+
+
+
+    </div>
+    <div>
+        <label class="layui-form-label">邮件地址</label>
+        <div class="layui-input-inline">
+            <input type="text" name="email" class="layui-input">
+        </div>
+    </div>
+    <div>
+        <label class="layui-form-label">联系电话</label>
+        <div class="layui-input-inline">
+            <input type="text" name="tele" class="layui-input">
+        </div>
+    </div>
+    <div>
+        <label class="layui-form-label">联系地址</label>
+        <div class="layui-input-inline">
+            <input type="text" name="address" class="layui-input">
+        </div>
+    </div>
+    <div>
+        <label class="layui-form-label">出生日期</label>
+        <div class="layui-input-inline">
+            <input type="text" name="birthday" id="birthday" class="layui-input">
+        </div>
+    </div>
+
+    <div>
+        <label class="layui-form-label">部门</label>
+        <div class="layui-input-inline" style="width: 186px;">
+            <select name="depuuid">
+                <option value="">请选择</option>
+
+            </select>
+        </div>
+    </div>
+</form>
+</body>
+<script>
+    var entity = {};
+    layui.use(['form', 'layer', 'table','laydate', 'jquery'], function () {
+        var form = layui.form;
+        $ = layui.$;
+        var laydate = layui.laydate;
+        laydate.render({
+            elem: '#birthday'
+        });
+
+        $(function () {
+            selectList($('select[name=depuuid]'));
+            if(typeof (Request['id'])!='undefined'){
+                findOne(Request['id']);
+            }
+            myRender();
+
+        })
+        function findOne(id) {
+
+            $.ajax({
+                url: "/emp/findOne?id=" + id,
+                type: 'get',
+                async: false,
+                success: function (response) {
+                    entity = response;
+                }
+            });
+        }
+
+        function myRender() {
+            for (key in entity) {
+                if(key=="gender"){
+                    var $genders =  $('.operForm [name=' + key + ']');
+                    $genders.eq(0).attr("checked",entity.gender==0?true:false);
+                    $genders.eq(1).attr("checked",entity.gender==1?true:false);
+                }else{
+                    $('.operForm [name=' + key + ']').val(entity[key])
+                }
+
+            }
+            form.render()
+
+        }
+
+        function selectList($obj) {
+            $.ajax({
+                type: "get",
+                url: "../../dep/listAndMap",
+                async: false,
+                success: function (response) {
+                    var $select = $obj;
+                    $.each(response.list, function (i, n) {
+                        var optionhtml = '<option  value="' + n.uuid + '">' + n.name + '</option>';
+                        $select.append(optionhtml);
+                    });
+                    form.render()
+                }
+            });
+        }
+
+    });
+</script>
+
+</html>

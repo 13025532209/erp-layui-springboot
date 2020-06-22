@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="../../js/angular.min.js"></script>
+    <link rel="stylesheet" href="../../layui/css/layui.css">
+    <script src="../../layui/layui.js"></script>
+    <script src="../../js/request.js"></script>
+
+</head>
+<style>
+    .operForm > div {
+        margin-bottom: 15px;
+    }
+
+    .operForm {
+        padding-top: 20px;
+    }
+
+    /* .operForm button {
+         margin: 130px auto 0;
+         display: block;
+     }*/
+
+    body {
+        background-color: #F2F2F2;
+    }
+</style>
+
+<body>
+<form action="" class="layui-form operForm">
+    <div>
+        <label class="layui-form-label">商品类型</label>
+        <div class="layui-input-inline">
+            <input name="name" type="text" class="layui-input">
+        </div>
+    </div>
+
+    <!-- <div>
+         <button type="button" clalayui1ayui-btn" ng-click="save()">保存</button>
+     </div>-->
+</form>
+</body>
+<script>
+
+    /* var form ;
+     var layer;
+     var table;*/
+
+    var entity = {};
+    layui.use(['form', 'layer', 'table', 'jquery'], function () {
+        $ = layui.$;
+        var form = layui.form;
+        var layer = layui.layer;
+        var table = layui.table;
+
+
+
+        if(entity!=null){
+            $('input[name=name]').val(entity.name);
+        }
+    });
+
+
+</script>
+
+</html>

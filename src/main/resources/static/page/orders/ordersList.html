@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="../../js/angular.min.js"></script>
+    <link rel="stylesheet" href="../../layui/css/layui.css">
+    <script src="../../layui/layui.js"></script>
+    <script src="../../js/request.js"></script>
+</head>
+<style>
+    .searchForm .layui-input {
+        width: 200px;
+        display: inline-block;
+    }
+
+    .searchForm .layui-form-label {
+        /*text-align: left;*/
+        width: 56px;
+    }
+
+    .searchForm button {
+        margin-left: 16px;
+    }
+
+    .searchForm > div {
+        display: inline-block;
+        margin-bottom: 15px;
+    }
+
+    .childrenBody .layui-elem-quote {
+        padding-bottom: 0px;
+    }
+
+    .childrenBody {
+        margin: 10px 10px 0;
+    }
+</style>
+
+<body>
+<div class="childrenBody">
+    <blockquote class="site-text layui-elem-quote">
+        <form action="" class="layui-form searchForm">
+            <div>
+                <label class="layui-form-label">供应商</label>
+                <div class="layui-input-inline">
+                    <select name="supplieruuid">
+                        <option value="">请选择</option>
+                        </option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div>
+                <label class="layui-form-label">状态</label>
+                <div class="layui-input-inline">
+                    <select name="state">
+                        <option value="">请选择</option>
+                        </option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div>
+                <button type="button" class="layui-btn" lay-submit="" lay-filter="do_search" id="search_btn">查询</button>
+            </div>
+
+        </form>
+    </blockquote>
+    <table class="layui-table" id="ordersList" lay-filter="ordersList"></table>
+</div>
+
+</body>
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+<script>
+    var empMap = {};
+    var supplierMap = {};
+    var table;
+    var stateMap;
+    var orderdetailMap;
+    var state = '';
+    var data;
+    var oper = Request['oper'];
+    layui.use(['form', 'element', 'layer', 'table', 'jquery'], function () {
+        $ = layui.$;
+        table = layui.table;
+        var form = layui.form;
+        $(function () {
+            empList();
+            suppliertList($('select[name=supplieruuid]'));
+            initData();
+            statetList($('select[name=state]'))
+
+        })
+
+
+        table.render({
+            elem: '#ordersList',
+            url: '/orders/findList?type=' + Request['type'] + '&state=' + state,
+            cols: [
+                data
+            ],
+            height: "full-120",
+            page: true,
+        });
+
+        //监听行单击事件（单击事件为：rowDouble）
+        table.on('row(ordersList)', function (obj) {
+            var data = obj.data;
+            /*  layer.alert(JSON.stringify(data), {
+             title: '当前行数据：'
+             });*/
+            //标注选中样式
+            obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
+
+            layer.open({
+                type: 2,
+                title: '订单详情',
+                content: 'ordersOper.html?id=' + data.uuid + '&oper=' + Request['oper']+'&type='+Request['type'],
+                area: ['722px', '440px'],
+                cancel: function () {
+                    reloadTable();
+                }
+            });
+        });
+
+        //查询
+        form.on('submit(do_search)', function (data) {
+            //获取当前页条数
+            var recodeLimit = $(".layui-laypage-limits").find("option:selected").val();
+            console.log(data.field);
+            //执行重载
+            table.reload('ordersList', {
+                url: "/orders/findList?type=" + Request['type'],
+                curr: 1, //重新从第 1 页开始
+                limit: recodeLimit,
+                //根据条件查询
+                where: data.field
+            })
+            return false;
+        });
+
+        $('.searchForm div:last-child').on('click', '#orders_add_btn', function () {
+            layer.open({
+                type: 2,
+                title: '申请操作',
+                content: 'ordersAdd.html?type=' + Request['type'],
+                area: ['722px', '440px'],
+                shadeClose: true,
+            });
+        })
+
+        function empList($obj) {
+            $.ajax({
+                type: "get",
+                url: "/emp/listAndMap",
+                async: false,
+                success: function (response) {
+                    empMap = response.map;
+                }
+            });
+        }
+
+        function suppliertList($obj) {
+            $.ajax({
+                type: "get",
+                url: "/supplier/listAndMap",
+                async: false,
+                success: function (response) {
+                    supplierMap = response.map;
+                    var $select = $obj;
+                    $.each(response.list, function (i, n) {
+                        var optionhtml = '<option  value="' + n.uuid + '">' + n.name + '</option>';
+                        $select.append(optionhtml);
+                    });
+                    form.render()
+                }
+            });
+        }
+
+        function statetList($obj) {
+            var $select = $obj;
+            for (key in stateMap) {
+                var optionhtml = '<option  value="' + key + '">' + stateMap[key] + '</option>';
+                $select.append(optionhtml);
+            }
+            form.render()
+        }
+
+        //格式化时间
+        function resolvingDate(date) {
+            //date是传入的时间
+            var d = new Date(date);
+
+            var month = (d.getMonth() + 1) < 10 ? '0' + (d.getMonth() + 1) : (d.getMonth() + 1);
+            var day = d.getDate() < 10 ? '0' + d.getDate() : d.getDate();
+            var hours = d.getHours() < 10 ? '0' + d.getHours() : d.getHours();
+            var min = d.getMinutes() < 10 ? '0' + d.getMinutes() : d.getMinutes();
+            var sec = d.getSeconds() < 10 ? '0' + d.getSeconds() : d.getSeconds();
+
+            var times = d.getFullYear() + '-' + month + '-' + day + ' ' + hours + ':' + min + ':' + sec;
+            /* var times = d.getFullYear() + '-' + month + '-' + day;*/
+            return times
+        }
+
+        function initData() {
+
+            var method = '';
+            if (Request['oper'] == 'myorders' && Request['type'] == '1') {
+                method = '采购申请';
+            }
+            if (Request['oper'] == 'myorders' && Request['type'] == '2') {
+                method = '销售订单录入';
+            }
+            if (method != '') {
+                var buttonHtml = '<button type="button" class="layui-btn layui-btn-normal" id="orders_add_btn" >' + method + '</button>';
+                $('#search_btn').after(buttonHtml);
+            }
+
+
+            // if (Request['oper'] == 'doCheck' || Request['oper'] == 'myorders' || Request['oper'] == 'doOutStore') {
+            //     state = '0';
+            // }
+            //审核 和 或者出库的
+            if (Request['oper'] == 'doCheck' || Request['oper'] == 'doOutStore') {
+                state = '0';
+            }
+            if (Request['oper'] == 'doStart') {
+                state = '1';
+            }
+            if (Request['oper'] == 'doInStore') {
+                state = '2';
+            }
+            if (Request['type'] == '1') {
+                stateMap = {"0": "未审核", "1": "已审核", "2": "已确认", "3": "已入库"};
+                orderdetailMap = {"0": "未入库", "1": "已入库"};
+                data = [{
+                    field: 'uuid',
+                    width: 60,
+                    title: '编号'
+                }, {
+                    field: 'createtime',
+                    width: 120,
+                    title: '生成日期',
+                    templet: function (d) {
+                        if (d.createtime == null || d.createtime == '') {
+                            return '';
+                        }
+                        return resolvingDate(d.createtime)
+                    }
+                },
+                    {
+                        field: 'checktime',
+                        width: 120,
+                        title: '审核日期',
+                        templet: function (d) {
+                            if (d.checktime == null || d.checktime == '') {
+                                return '';
+                            }
+                            return resolvingDate(d.checktime)
+                        }
+                    },
+                    {
+                        field: 'starttime',
+                        width: 120,
+                        title: '确认日期',
+                        templet: function (d) {
+                            if (d.starttime == null || d.starttime == '') {
+                                return '';
+                            }
+                            return resolvingDate(d.starttime)
+                        }
+                    },
+                    {
+                        field: 'endtime',
+                        width: 120,
+                        title: '入库日期',
+                        templet: function (d) {
+                            if (d.endtime == null || d.endtime == '') {
+                                return '';
+                            }
+                            return resolvingDate(d.endtime)
+                        }
+                    },
+                    {
+                        field: 'creater',
+                        width: 120,
+                        title: '下单员',
+                        templet: function (d) {
+                            return empMap[d.creater];
+                        }
+                    }, {
+                        field: 'checker',
+                        width: 120,
+                        title: '审核员',
+                        templet: function (d) {
+                            if (typeof (empMap[d.checker]) == 'undefined') {
+                                return '';
+                            } else {
+                                return empMap[d.checker];
+                            }
+
+                        }
+                    }, {
+                        field: 'starter',
+                        width: 120,
+                        title: '采购员',
+                        templet: function (d) {
+                            if (typeof (empMap[d.starter]) == 'undefined') {
+                                return '';
+                            } else {
+                                return empMap[d.starter];
+                            }
+                        }
+                    }, {
+                        field: 'ender',
+                        width: 120,
+                        title: '库管员',
+                        templet: function (d) {
+                            if (typeof (empMap[d.ender]) == 'undefined') {
+                                return '';
+                            } else {
+                                return empMap[d.ender];
+                            }
+                        }
+                    }, {
+                        field: 'supplieruuid',
+                        width: 120,
+                        title: '供应商',
+                        templet: function (d) {
+                            if (typeof (supplierMap[d.supplieruuid]) == 'undefined') {
+                                return '';
+                            } else {
+                                return supplierMap[d.supplieruuid];
+                            }
+                        }
+                    }, {
+                        field: 'totalmoney',
+                        width: 120,
+                        title: '合计金额'
+                    }, {
+                        field: 'state',
+                        width: 120,
+                        title: '状态',
+                        templet: function (d) {
+                            return stateMap[d.state];
+                        }
+                    },
+                    {
+                        field: 'waybillsn',
+                        width: 120,
+                        title: '运单号'
+                    }];
+            } else if (Request['type'] == 2) {
+                stateMap = {"0": "未出库", "1": "已出库"};
+                orderdetailMap = {"0": "未出库", "1": "已出库"};
+                data = [{
+                    field: 'uuid',
+                    width: 60,
+                    title: '编号'
+                }, {
+                    field: 'createtime',
+                    width: 120,
+                    title: '生成日期',
+                    templet: function (d) {
+                        if (d.createtime == null || d.createtime == '') {
+                            return '';
+                        }
+                        return resolvingDate(d.createtime)
+                    }
+                },
+
+                    {
+                        field: 'endtime',
+                        width: 120,
+                        title: '出库日期',
+                        templet: function (d) {
+                            if (d.endtime == null || d.endtime == '') {
+                                return '';
+                            }
+                            return resolvingDate(d.endtime)
+                        }
+                    },
+                    {
+                        field: 'creater',
+                        width: 120,
+                        title: '下单员',
+                        templet: function (d) {
+                            return empMap[d.creater];
+                        }
+                    },
+                    {
+                        field: 'ender',
+                        width: 120,
+                        title: '库管员',
+                        templet: function (d) {
+                            if (typeof (empMap[d.ender]) == 'undefined') {
+                                return '';
+                            } else {
+                                return empMap[d.ender];
+                            }
+                        }
+                    }, {
+                        field: 'supplieruuid',
+                        width: 120,
+                        title: '客户',
+                        templet: function (d) {
+                            if (typeof (supplierMap[d.supplieruuid]) == 'undefined') {
+                                return '';
+                            } else {
+                                return supplierMap[d.supplieruuid];
+                            }
+                        }
+                    }, {
+                        field: 'totalmoney',
+                        width: 120,
+                        title: '合计金额'
+                    }, {
+                        field: 'state',
+                        width: 120,
+                        title: '状态',
+                        templet: function (d) {
+                            return stateMap[d.state];
+                        }
+                    },
+                    {
+                        field: 'waybillsn',
+                        width: 120,
+                        title: '运单号'
+                    }];
+            }
+        }
+    });
+
+
+    function reloadTable() {
+        //获取当前页
+        var recodePage = $(".layui-laypage-skip .layui-input").val();
+        //获取当前页条数
+        var recodeLimit = $(".layui-laypage-limits").find("option:selected").val();
+        table.reload('ordersList', {
+            url: "/orders/findList?type=" + Request['type'] + '&state=' + state,
+            page: {
+                curr: recodePage,
+                limit: recodeLimit
+            }
+        })
+    }
+</script>
+
+</html>

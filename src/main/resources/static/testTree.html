@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>树组件</title>
+    <link rel="stylesheet" href="layui/css/layui.css">
+</head>
+
+<body>
+<div id="test12" class="demo-tree-more"></div>
+<div class="layui-btn-container">
+    <button type="button" class="layui-btn layui-btn-sm" lay-demo="getChecked">获取选中节点数据</button>
+    <button type="button" class="layui-btn layui-btn-sm" lay-demo="setChecked">勾选指定节点</button>
+    <button type="button" class="layui-btn layui-btn-sm" lay-demo="reload">重载实例</button>
+</div>
+</body>
+<script src="layui/layui.js"></script>
+<script>
+    layui.use(['tree', 'jquery', 'util'], function () {
+        $ = layui.jquery;
+        var tree = layui.tree,
+            util = layui.util;
+        var data=[];
+       $(function(){
+           getData(2);
+
+       })
+
+
+        //基本演示
+        tree.render({
+            elem: '#test12',
+            data: data,
+            showCheckbox: true //是否显示复选框
+            ,
+            id: 'demoId1',
+            isJump: true //是否允许点击节点时弹出新窗口跳转
+            ,
+
+            edit: ['add', 'update', 'del'] //操作节点的图标
+            ,
+            click: function (obj) {
+                var data = obj.data; //获取当前点击的节点数据
+                /*layer.msg('状态：' + obj.state + '<br>节点数据：' + JSON.stringify(data));*/
+                console.log(data)
+            },
+            operate: function (obj) {
+                var type = obj.type; //得到操作类型：add、edit、del
+                var data = obj.data; //得到当前节点的数据
+                var elem = obj.elem; //得到当前节点元素
+
+                //Ajax 操作
+                var id = data.id; //得到节点索引
+                if (type === 'add') { //增加节点
+                    //返回 key 值
+                } else if (type === 'update') { //修改节点
+                    console.log(elem.find('.layui-tree-txt').html()); //得到修改后的内容
+                } else if (type === 'del') { //删除节点
+
+                }
+                ;
+            }
+        });
+
+        //按钮事件
+        util.event('lay-demo', {
+            getChecked: function (othis) {
+                var checkedData = tree.getChecked('demoId1'); //获取选中节点的数据
+
+                layer.alert(JSON.stringify(checkedData), {
+                    shade: 0
+                });
+                console.log(checkedData);
+            },
+            setChecked: function () {
+                tree.setChecked('demoId1', [12, 16]); //勾选指定节点
+            },
+            reload: function () {
+                //重载实例
+                tree.reload('demoId1', {});
+
+            }
+        });
+        function getData(roleId) {
+            $.ajax({
+                type: "get",
+                url: "/role/readRoleMenus?uuid="+roleId,
+                async: false,
+                success: function (msg) {
+                    console.log(msg)
+                    data = msg;
+                }
+            });
+        }
+        //获得选中的节点
+        /*$("#subBtn").click(function(){
+         var checkData = tree.getChecked('demoId');
+         layer.msg(checkData);
+         })*/
+    });
+</script>
+
+</html>

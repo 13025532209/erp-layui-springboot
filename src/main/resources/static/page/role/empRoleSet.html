@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <link rel="stylesheet" href="../../layui/css/layui.css">
+    <script src="../../layui/layui.js"></script>
+    <script src="../../js/angular.min.js" type="text/javascript" charset="utf-8"></script>
+</head>
+<style>
+    .left-box {
+        width: 330px;
+        float: left;
+        box-sizing: border-box;
+        margin-left: 100px;
+        margin-top: 80px;
+    }
+
+    .right-box {
+        float: left;
+        box-sizing: border-box;
+        margin-left: 20px;
+        margin-top: 4px;
+    }
+</style>
+<body ng-app="myApp" ng-controller="myCtrl" >
+<div class="left-box">
+    <table id="empTable" lay-filter="empTable"></table>
+    <button class="layui-btn layui-btn-fluid" id="sub_btn">保存</button>
+</div>
+
+<div class="right-box">
+    <div id="test12" class="demo-tree-more"></div>
+</div>
+</body>
+
+
+<script>
+    var layer;
+    var app = angular.module('myApp', []);
+    app.controller('myCtrl', function ($scope, $http) {
+
+        $scope.sub=function(uuid,treeList){
+            $http.post('../../role/updateEmpRoles?uuid='+uuid,treeList).then(function(response){
+                if(response.data.success){
+                    layer.msg(response.data.message);
+                }else{
+                    layer.msg("操作失败");
+                }
+            })
+        }
+
+        layui.use(['table', 'layer', 'tree', 'jquery'], function () {
+            layer = layui.layer;
+            var table = layui.table;
+            var tree = layui.tree;
+            $ = layui.jquery;
+            var data = [];
+            var selectRoleId = '';
+
+            table.render({
+                elem: '#empTable'
+                , url: '/emp/findList' //数据接口
+                , height: 400
+                , cols: [[ //表头
+                    {field: 'uuid', title: 'id', width: '30%'}
+                    , {field: 'name', title: '员工名称', width: '70.5%'}
+                ]]
+            });
+
+
+            //基本演示
+            tree.render({
+                elem: '#test12',
+                data: data,
+                showCheckbox: true //是否显示复选框
+                ,
+                id: 'demoId1',
+            });
+            $('#sub_btn').click(function () {
+                var treeList = tree.getChecked('demoId1'); //获取选中节点的数据
+               /* console.log(treeList);*/
+                $scope.sub(selectRoleId,treeList);
+            })
+
+            //监听行单击事件（单击事件为：rowDouble）
+            table.on('row(empTable)', function (obj) {
+                selectRoleId = obj.data.uuid;
+                getData(obj.data.uuid);
+                //重载实例
+                tree.reload('demoId1', {
+                    data: data,
+                });
+                //标注选中样式
+                obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
+            });
+
+            function getData(empId) {
+                $.ajax({
+                    type: "get",
+                    url: "/role/readEmpRoles?empuuid=" + empId,
+                    async: false,
+                    success: function (msg) {
+
+                        data = msg;
+                    }
+                });
+            }
+        })
+
+    })
+</script>
+</html>

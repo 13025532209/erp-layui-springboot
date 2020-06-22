@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.demo.dao.EmpMapper">
+
+
+    <select id="getMenusByEmpuuid" parameterType="java.lang.Long" resultType="com.example.demo.entity.Menu">
+      select * from menu where menuid in(
+          select menuuuid from ROLE_MENU where roleuuid in(
+             select roleuuid from emp_role where empuuid=#{empuuid})
+      )
+
+    </select>
+</mapper>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="../../layui/css/layui.css">
+    <script src="../../layui/layui.js"></script>
+    <script src="../../js/request.js"></script>
+</head>
+<style>
+    .operForm > div {
+        margin-bottom: 15px;
+    }
+
+    .operForm {
+        padding-top: 20px;
+    }
+
+    body {
+        background-color: #F2F2F2;
+    }
+</style>
+
+<body>
+<form action="" class="layui-form operForm">
+    <input type="text" name="uuid" hidden>
+    <div>
+        <label class="layui-form-label">部门名称</label>
+        <div class="layui-input-inline">
+            <input type="text" name="name" class="layui-input">
+        </div>
+    </div>
+
+    <div>
+        <label class="layui-form-label">联系电话</label>
+        <div class="layui-input-inline">
+            <input type="text" name="tele" class="layui-input">
+        </div>
+    </div>
+
+</form>
+</body>
+<script>
+    var entity = {};
+    layui.use(['form', 'layer', 'table', 'jquery'], function () {
+        var form = layui.form;
+        $ = layui.$;
+
+
+        $(function () {
+            if(typeof (Request['id'])!='undefined'){
+                findOne(Request['id']);
+            }
+            myRender();
+
+        })
+        function findOne(id) {
+
+            $.ajax({
+                url: "/dep/findOne?id=" + id,
+                type: 'get',
+                async: false,
+                success: function (response) {
+                    entity = response;
+                }
+            });
+        }
+
+        function myRender() {
+            for (key in entity) {
+                $('.operForm [name=' + key + ']').val(entity[key])
+            }
+            form.render()
+
+        }
+
+
+    });
+</script>
+
+</html>
